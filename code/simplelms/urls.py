@@ -18,6 +18,14 @@ from django.contrib import admin
 from django.urls import path
 from lms_core.views import index, testing, addData, editData, deleteData
 from lms_core.api import apiv1
+from lms_core.views import (
+    UserActivityDashboardView,
+    CourseAnalyticsView,
+    BatchEnrollView,
+    ModerateCommentView,
+    ViewContentComments,
+    GenerateCertificateView,
+)
 
 urlpatterns = [
     path('api/v1/', apiv1.urls),
@@ -27,4 +35,10 @@ urlpatterns = [
     path('ubah/', editData),
     path('hapus/', deleteData),
     path('', index),
+    path('user-activity/<int:user_id>/', UserActivityDashboardView.as_view(), name='user_activity_dashboard'),
+    path('course-analytics/<int:course_id>/', CourseAnalyticsView.as_view(), name='course_analytics'),
+    path('batch-enroll/<int:course_id>/', BatchEnrollView.as_view(), name='batch_enroll'),
+    path('moderate-comment/<int:comment_id>/', ModerateCommentView.as_view(), name='moderate_comment'),
+    path('view-content-comments/<int:course_id>/', ViewContentComments.as_view(), name='view_content_comments'),
+    path('generate-certificate/<int:course_id>/', GenerateCertificateView.as_view(), name='generate_certificate'),
 ]

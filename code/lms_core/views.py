@@ -7,6 +7,9 @@ from django.views import View
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from lms_core.models import Course, CourseMember, CourseContent, Comment, ContentCompletion, Certificate, Feedback
+from django.contrib.auth.forms import UserCreationForm
+from django.urls import reverse_lazy
+from django.views.generic.edit import CreateView
 import json
 
 def index(request):
@@ -44,6 +47,11 @@ def parse_json_body(request):
         return json.loads(request.body), None
     except json.JSONDecodeError:
         return None, JsonResponse({'error': 'Invalid JSON format'}, status=400)
+    
+class RegisterView(CreateView):
+    template_name = 'registration/register.html'
+    form_class = UserCreationForm
+    success_url = reverse_lazy('login')  # Redirect to login page after registration
 
 class UserActivityDashboardView(View):
     def get(self, request, user_id):
@@ -159,7 +167,7 @@ class GenerateCertificateView(View):
 
             certificate, _ = Certificate.objects.get_or_create(user_id=user, course_id=course)
 
-            certificate_html = render_to_string('certificate.html', {
+            certificate_html = render_to_string('certificate.html', { # type: ignore
                 'user': user,
                 'course': course,
                 'issued_at': certificate.issued_at,
