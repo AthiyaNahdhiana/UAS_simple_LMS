@@ -70,3 +70,18 @@ class Comment(models.Model):
 
     def __str__(self) -> str:
         return "Komen: "+self.member_id.user_id+"-"+self.comment
+    
+class ContentCompletion(models.Model):
+    user_id = models.ForeignKey(User, verbose_name="siswa", on_delete=models.RESTRICT)
+    course_id = models.ForeignKey(Course, verbose_name="matkul", on_delete=models.RESTRICT)
+    completed_at = models.DateTimeField(auto_now_add=True)
+
+class Feedback(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    course_id = models.ForeignKey(Course, verbose_name="matkul", on_delete=models.RESTRICT)
+    feedback_text = models.TextField() #???? klo content feedback / komen
+
+class Certificate(models.Model):
+    user_id = models.ForeignKey(User, verbose_name="siswa", on_delete=models.RESTRICT)
+    course_id = models.ForeignKey(Course, verbose_name="matkul", on_delete=models.RESTRICT)
+    issued_at = models.DateTimeField(auto_now_add=True)
