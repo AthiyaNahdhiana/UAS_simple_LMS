@@ -69,7 +69,7 @@ class Comment(models.Model):
         verbose_name_plural = "Komentar"
 
     def __str__(self) -> str:
-        return "Komen: "+self.member_id.user_id+"-"+self.comment
+        return f"Komen oleh {self.member_id.user_id.username}: {self.comment}"
     
 class ContentCompletion(models.Model):
     user_id = models.ForeignKey(User, verbose_name="siswa", on_delete=models.RESTRICT)
@@ -85,3 +85,19 @@ class Certificate(models.Model):
     user_id = models.ForeignKey(User, verbose_name="siswa", on_delete=models.RESTRICT)
     course_id = models.ForeignKey(Course, verbose_name="matkul", on_delete=models.RESTRICT)
     issued_at = models.DateTimeField(auto_now_add=True)
+
+
+class Feedback(models.Model):
+    user = models.ForeignKey(User, verbose_name="User", on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, verbose_name="Course", on_delete=models.CASCADE)
+    feedback_text = models.TextField("Feedback Text")
+    created_at = models.DateTimeField("Created At", auto_now_add=True)
+    updated_at = models.DateTimeField("Updated At", auto_now=True)
+
+    class Meta:
+        verbose_name = "Feedback"
+        verbose_name_plural = "Feedbacks"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Feedback by {self.user.username} on {self.course.name}"

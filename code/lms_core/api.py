@@ -3,11 +3,12 @@ from ninja.responses import Response
 from lms_core.schema import CourseSchemaOut, CourseMemberOut, CourseSchemaIn
 from lms_core.schema import CourseContentMini, CourseContentFull
 from lms_core.schema import CourseCommentOut, CourseCommentIn
-from lms_core.models import Course, CourseMember, CourseContent, Comment
+from lms_core.models import Course, CourseMember, CourseContent, Comment, Feedback
 from ninja_simple_jwt.auth.views.api import mobile_auth_router
 from ninja_simple_jwt.auth.ninja_auth import HttpJwtAuth
 from ninja.pagination import paginate, PageNumberPagination
-
+from ninja.security import HttpBearer
+from lms_core.schema import FeedbackSchemaIn, FeedbackSchemaOut
 from django.contrib.auth.models import User
 
 apiv1 = NinjaAPI()
@@ -128,3 +129,62 @@ def delete_comment(request, comment_id: int):
         return {"error": "You are not authorized to delete this comment"}
     comment.delete()
     return {"message": "Comment deleted"}   
+
+class AuthBearer(HttpBearer):
+    def authenticate(self, request, token):
+        # Implement token verification logic here
+        user = User.objects.filter(auth_token=token).first()
+        return user
+
+api = NinjaAPI()
+apiAuth = AuthBearer()
+
+@api.post("/courses/{course_id}/feedback", auth=apiAuth, response={201: FeedbackSchemaOut})
+def add_feedback(request, course_id: int, data: Form[FeedbackSchemaIn]):
+    """Add feedback to a specific course."""
+    try:
+        course = Course.objects.get(id=course_id)
+    except Course.DoesNotExist:
+        return Response({"error": "Course not found"}, status=404)
+
+    feedback = Feedback.objects.create(
+        user=request.auth,
+        course_id=course,
+        feedback_text=data.feedback_text
+    )
+    return 201, feedback
+
+@api.get("/courses/{course_id}/feedback", auth=apiAuth, response=list[FeedbackSchemaOut])
+@paginate(PageNumberPagination, page_size=10)
+def show_feedback(request, course_id: int):
+    """Show all feedback for a specific course."""
+    try:
+        course = Course.objects.get(id=course_id)
+    except Course.DoesNotExist:
+        return Response({"error": "Course not found"}, status=404)
+
+    feedbacks = Feedback.objects.filter(course_id=course)
+    return feedbacks
+
+@api.put("/courses/{course_id}/feedback/{feedback_id}", auth=apiAuth, response=FeedbackSchemaOut)
+def edit_feedback(request, course_id: int, feedback_id: int, data: Form[FeedbackSchemaIn]):
+    """Edit an existing feedback written by the student."""
+    try:
+        feedback = Feedback.objects.get(id=feedback_id, course_id=course_id, user=request.auth)
+    except Feedback.DoesNotExist:
+        return Response({"error": "Feedback not found or unauthorized"}, status=404)
+
+    feedback.feedback_text = data.feedback_text
+    feedback.save()
+    return feedback
+
+@api.delete("/courses/{course_id}/feedback/{feedback_id}", auth=apiAuth)
+def delete_feedback(request, course_id: int, feedback_id: int):
+    """Delete a feedback written by the student."""
+    try:
+        feedback = Feedback.objects.get(id=feedback_id, course_id=course_id, user=request.auth)
+    except Feedback.DoesNotExist:
+        return Response({"error": "Feedback not found or unauthorized"}, status=404)
+
+    feedback.delete()
+    return {"message": "Feedback deleted successfully"}

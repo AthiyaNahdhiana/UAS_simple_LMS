@@ -11,6 +11,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 import json
+from django.contrib.auth.decorators import login_required
+
 
 def index(request):
     return HttpResponse("<h1>Hello World</h1>")
@@ -20,6 +22,7 @@ def testing(request):
     dataCourse = serializers.serialize("python", dataCourse)
     return JsonResponse(dataCourse, safe=False)
 
+@login_required
 def addData(request): # jangan lupa menambahkan fungsi ini di urls.py
     course = Course(
         name = "Belajar Django",
@@ -30,12 +33,14 @@ def addData(request): # jangan lupa menambahkan fungsi ini di urls.py
     course.save()
     return JsonResponse({"message": "Data berhasil ditambahkan"})
 
+@login_required
 def editData(request):
     course = Course.objects.filter(name="Belajar Django").first()
     course.name = "Belajar Django Setelah update"
     course.save()
     return JsonResponse({"message": "Data berhasil diubah"})
 
+@login_required
 def deleteData(request):
     course = Course.objects.filter(name__icontains="Belajar Django").first()
     course.delete()
@@ -53,6 +58,7 @@ class RegisterView(CreateView):
     form_class = UserCreationForm
     success_url = reverse_lazy('login')  # Redirect to login page after registration
 
+@method_decorator(login_required, name='dispatch')
 class UserActivityDashboardView(View):
     def get(self, request, user_id):
         try:
@@ -94,6 +100,7 @@ class CourseAnalyticsView(View):
             return JsonResponse({'error': 'Course not found'}, status=404)
 
 @method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(login_required, name='dispatch')
 class BatchEnrollView(View):
     def post(self, request, course_id):
         try:
@@ -120,6 +127,7 @@ class BatchEnrollView(View):
             return JsonResponse({'error': 'One or more users not found'}, status=404)
 
 @method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(login_required, name='dispatch')
 class ModerateCommentView(View):
     def post(self, request, comment_id):
         try:
@@ -142,6 +150,7 @@ class ModerateCommentView(View):
         except Comment.DoesNotExist:
             return JsonResponse({'error': 'Comment not found'}, status=404)
 
+@method_decorator(login_required, name='dispatch')
 class ViewContentComments(View):
     def get(self, request, course_id):
         try:
@@ -153,6 +162,7 @@ class ViewContentComments(View):
         except Course.DoesNotExist:
             return JsonResponse({'error': 'Course not found'}, status=404)
 
+@method_decorator(login_required, name='dispatch')
 class GenerateCertificateView(View):
     def get(self, request, course_id):
         try:

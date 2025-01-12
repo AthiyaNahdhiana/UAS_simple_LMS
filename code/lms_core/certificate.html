@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        .certificate {
+            border: 10px solid #2c3e50;
+            padding: 30px;
+            margin: 50px auto;
+            width: 80%;
+            background: #fff;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+        .certificate h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+        }
+        .certificate h2 {
+            color: #34495e;
+            margin: 20px 0;
+        }
+        .certificate p {
+            font-size: 1.2em;
+            color: #7f8c8d;
+        }
+        .certificate .details {
+            margin-top: 40px;
+        }
+        .certificate .details p {
+            margin: 5px 0;
+        }
+        .certificate .signature {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .certificate .signature .sign {
+            text-align: center;
+            font-size: 1em;
+            color: #34495e;
+        }
+        .certificate .signature .sign img {
+            max-width: 150px;
+        }
+    </style>
+</head>
+<body>
+    <div class="certificate">
+        <h1>Certificate of Completion</h1>
+        <h2>This is to certify that</h2>
+        <h1>{{ user.first_name }} {{ user.last_name }}</h1>
+        <p>has successfully completed the course</p>
+        <h2>{{ course.name }}</h2>
+        <div class="details">
+            <p>Issued on: {{ issued_at|date:"F d, Y" }}</p>
+            <p>Instructor: {{ course.teacher.first_name }} {{ course.teacher.last_name }}</p>
+        </div>
+        <div class="signature">
+            <div class="sign">
+                <p>_________________________</p>
+                <p>Instructor Signature</p>
+            </div>
+            <div class="sign">
+                <p>_________________________</p>
+                <p>Director</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
