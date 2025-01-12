@@ -89,7 +89,7 @@ class Certificate(models.Model):
 
 class Feedback(models.Model):
     user = models.ForeignKey(User, verbose_name="User", on_delete=models.CASCADE)
-    course = models.ForeignKey(Course, verbose_name="Course", on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, verbose_name="matkul", on_delete=models.RESTRICT)
     feedback_text = models.TextField("Feedback Text")
     created_at = models.DateTimeField("Created At", auto_now_add=True)
     updated_at = models.DateTimeField("Updated At", auto_now=True)
